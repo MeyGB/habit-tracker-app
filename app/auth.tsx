@@ -2,7 +2,7 @@ import { useAuth } from '@/utils/auth-context'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native'
-import { Button, Text, TextInput, useTheme } from 'react-native-paper'
+import { ActivityIndicator, Button, Text, TextInput, useTheme } from 'react-native-paper'
 
 export default function AuthScreen() {
 
@@ -11,7 +11,7 @@ export default function AuthScreen() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>('')
-    const {signIn, signUp} = useAuth()
+    const {signIn, signUp,isLoadingAuth } = useAuth()
     const router = useRouter()
 
     const handleAuth = async () => {
@@ -46,6 +46,14 @@ export default function AuthScreen() {
 
     const handleSwitch = () => {
         setIsSignUp((prev) => !prev)
+    }
+
+    if (isLoadingAuth) {
+        return (
+            <View style={style.loadingContainer}>
+                <ActivityIndicator size="large" />
+            </View>
+        )
     }
     
   return (
@@ -99,4 +107,10 @@ const style = StyleSheet.create({
     button:{
         marginTop:10
     },
+    loadingContainer: {
+        flex:1,
+        justifyContent:'center',
+        alignItems:'center',
+        backgroundColor:'#f5f5f5'
+    }
 })

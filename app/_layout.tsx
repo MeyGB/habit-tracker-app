@@ -1,6 +1,10 @@
 import { AuthProvider, useAuth } from "@/utils/auth-context";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { PaperProvider } from "react-native-paper";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { currentuser, isLoadingUser } = useAuth();
@@ -26,12 +30,18 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   return (
+    <GestureHandlerRootView style={{flex:1}}>
     <AuthProvider>
-      <AuthGate>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-      </AuthGate>
+      <PaperProvider>
+        <SafeAreaProvider>
+          <AuthGate>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+          </AuthGate>
+        </SafeAreaProvider>
+      </PaperProvider>
     </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
