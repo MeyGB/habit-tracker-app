@@ -1,8 +1,18 @@
+import { getAvatarText } from '@/helper/avatar';
+import { useAuth } from '@/utils/auth-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { Avatar } from 'react-native-paper';
 
 export default function TabsLayout() {
+  const currentuser = useAuth()
+
+  const userName = currentuser.currentuser?.name ?? "";
+
+  // useEffect(() => {
+  //   console.log(JSON.stringify(currentuser.currentuser?.name))
+  // })
   return (
     <Tabs screenOptions={{
       headerStyle:{ backgroundColor: "#f5f5f5"},
@@ -11,7 +21,10 @@ export default function TabsLayout() {
       tabBarStyle: {
         backgroundColor: "f5f5f5",
         borderTopWidth: 0,
-      }
+      },
+      headerRight: () => (
+        <Avatar.Text size={40} label={getAvatarText(userName)} />
+      )
       }}>
         <Tabs.Screen name='index' options={{title: 'Today\'s Habits', tabBarIcon: ({color,focused, size}) => (
             focused ?
