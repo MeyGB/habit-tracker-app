@@ -1,10 +1,8 @@
-import { getAvatarText } from '@/helper/avatar';
 import { useAuth } from '@/utils/auth-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Avatar } from 'react-native-paper';
-
+import ComUserProfile from '../component/ComUserProfile';
 export default function TabsLayout() {
   const currentuser = useAuth()
 
@@ -22,9 +20,7 @@ export default function TabsLayout() {
         backgroundColor: "f5f5f5",
         borderTopWidth: 0,
       },
-      headerRight: () => (
-        <Avatar.Text size={40} label={getAvatarText(userName)} />
-      )
+      headerRight: () => <ComUserProfile />
       }}>
         <Tabs.Screen name='index' options={{title: 'Today\'s Habits', tabBarIcon: ({color,focused, size}) => (
             focused ?

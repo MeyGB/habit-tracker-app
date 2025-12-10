@@ -6,8 +6,8 @@ export const getAvatarText = (name:string) => {
       return nameParts[0].charAt(0).toUpperCase();
     }
     
-    const firstInitial = nameParts[0].charAt(0).toUpperCase();
-    const secondInitial = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+    const first = nameParts[0].charAt(0).toUpperCase();
+    const last = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
     
-    return firstInitial + secondInitial;
+    return first + last;
   }

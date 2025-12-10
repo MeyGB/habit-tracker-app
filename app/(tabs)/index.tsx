@@ -16,6 +16,7 @@ export default function Index() {
   const swipeableRefs = useRef<{ [key: string]: Swipeable | null }>({});
 
   useEffect(() => {
+    
     if (currentuser) {
       const habitsChannel = `databases.${DB_ID}.collections.${DB_TABLE_ID}.documents`;
       const habitsSubscription = client.subscribe(
