@@ -20,6 +20,7 @@ export default function TabsLayout() {
         backgroundColor: "f5f5f5",
         borderTopWidth: 0,
       },
+      headerTitleAlign: "left",
       headerRight: () => <ComUserProfile />
       }}>
         <Tabs.Screen name='index' options={{title: 'Today\'s Habits', tabBarIcon: ({color,focused, size}) => (

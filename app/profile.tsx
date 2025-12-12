@@ -4,28 +4,35 @@ import { uploadImage } from "@/services/uploadImage";
 import { account } from "@/utils/Appwrite";
 import { useAuth } from "@/utils/auth-context";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
-import { Avatar, Button, Text } from "react-native-paper";
+import { Alert, KeyboardAvoidingView, StyleSheet } from "react-native";
+import { Avatar, Button, Text, TextInput } from "react-native-paper";
 
 export default function Profile() {
   const { currentuser, signOut } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [nameLoading, setNameLoading] = useState(false);
   const [avatarId, setAvatarId] = useState<string | null>(null);
+
+  const [name, setName] = useState("")
 
   useEffect(() => {
     console.log(currentuser);
+
     
     if (currentuser?.prefs?.avatar) {
       setAvatarId(currentuser.prefs.avatar);
+    }
+    if (currentuser?.name) {
+      setName(currentuser.name);
     }
   }, [currentuser]);
   console.log("Avatar ID:", avatarId); 
   console.log("Avatar URL:", getImageUrl(avatarId));
 
   const handleUpload = async () => {
-    setLoading(true);
+    setUploadLoading(true);
     const fileId = await uploadImage();
-    setLoading(false);
+    setUploadLoading(false);
 
     if (fileId) {
       Alert.alert("Success");
@@ -46,8 +53,23 @@ export default function Profile() {
     }
   };
 
+  const handeUpdate = async () => {
+    setNameLoading(true)
+    try {
+    const result = await account.updateName(name)
+    if (result) {
+      Alert.alert("Success", "Name updated!");
+      
+    } 
+    } catch (e) {
+      Alert.alert("error, update")
+      console.error(e)
+    }
+    setNameLoading(false) 
+  }
+
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container}>
       <Text variant="headlineMedium" style={{ marginBottom: 20 }}>
         My Profile
       </Text>
@@ -61,25 +83,36 @@ export default function Profile() {
       <Button
         mode="contained"
         style={{ marginTop: 20 }}
-        loading={loading}
+        loading={uploadLoading}
         onPress={handleUpload}
       >
         Upload Avatar
       </Button>
-
-      <Text variant="bodyMedium" style={{ marginTop: 20 }}>
-        Name: {currentuser?.name}
-      </Text>
-      <Text variant="bodyMedium">Email: {currentuser?.email}</Text>
+      <TextInput 
+        label="Name"
+        placeholder="Please Update Your Name"
+        mode='outlined'
+        defaultValue={currentuser?.name}
+        value={name}
+        onChangeText={setName}
+        style={{ width: "100%", marginTop: 20 }}
+      />
+      <TextInput 
+        label="email"
+        mode='outlined'
+        value={currentuser?.email}
+        style={{ width: "100%", marginTop: 20 }}
+      />
 
       <Button
-        mode="outlined"
+        mode="contained"
+        loading={nameLoading}
         style={{ marginTop: 20 }}
-        onPress={() => signOut()}
+        onPress={handeUpdate}
       >
-        Sign Out
+        Update
       </Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
