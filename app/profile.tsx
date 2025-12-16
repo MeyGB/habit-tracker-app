@@ -8,17 +8,25 @@ import { Alert, KeyboardAvoidingView, StyleSheet } from "react-native";
 import { Avatar, Button, Text, TextInput } from "react-native-paper";
 
 export default function Profile() {
-  const { currentuser, signOut } = useAuth();
+  const { currentuser, refreshUser } = useAuth();
   const [uploadLoading, setUploadLoading] = useState(false);
-  const [nameLoading, setNameLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [avatarId, setAvatarId] = useState<string | null>(null);
+  const [otp, setOtp] = useState("");
+  const [showOtp, setShowOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const [name, setName] = useState("")
+  const [email, setEmail] = useState(currentuser?.email || "")
+  const [password, setPassword] = useState("")
+  const [phone, setPhone] = useState(currentuser?.phone || "+855")
 
   useEffect(() => {
-    console.log(currentuser);
-
+    // console.log(currentuser);
+    console.log(currentuser?.phone);
+    console.log(currentuser?.phoneVerification); 
     
+
     if (currentuser?.prefs?.avatar) {
       setAvatarId(currentuser.prefs.avatar);
     }
@@ -27,7 +35,8 @@ export default function Profile() {
     }
   }, [currentuser]);
   console.log("Avatar ID:", avatarId); 
-  console.log("Avatar URL:", getImageUrl(avatarId));
+  console.log("Avatar URL:", getImageUrl(avatarId)); 
+
 
   const handleUpload = async () => {
     setUploadLoading(true);
@@ -42,8 +51,8 @@ export default function Profile() {
     } 
 
     try {
-      // Save avatar in user prefs via Appwrite
       const updatedUser = await account.updatePrefs({ avatar: fileId }); 
+      await refreshUser();
       setAvatarId(fileId);
       Alert.alert("Success", "Avatar updated!");
       console.log("Updated user:", updatedUser);
@@ -54,22 +63,75 @@ export default function Profile() {
   };
 
   const handeUpdate = async () => {
-    setNameLoading(true)
+    setLoading(true)
     try {
-    const result = await account.updateName(name)
-    if (result) {
-      Alert.alert("Success", "Name updated!");
-      
-    } 
+    if (name !== currentuser?.name) {
+      await account.updateName(name)
+      await refreshUser();
+    }
+    if (phone && phone !== currentuser?.phone) {
+      if (!password) {
+        Alert.alert("Password is require to update phone");
+        setLoading(false)
+        return;
+      }
+      await account.updatePhone(phone, password)
+      await account.createPhoneVerification()
+      await refreshUser();
+      setShowOtp(true);
+      Alert.alert("OTP Sent", "Please enter the OTP sent to your phone");
+    }
+    if (email !== currentuser?.email) {
+      if (!password) {
+        Alert.alert("Password is require");
+        setLoading(false);
+        return
+      } 
+      await account.updateEmail(email, password)
+      await refreshUser();
+      Alert.alert("Email updated", "Please verify your new email");
+      setPassword("");
+    }
+
+      Alert.alert("Success", "Profile updated");
     } catch (e) {
       Alert.alert("error, update")
       console.error(e)
+    } finally {
+
+      setLoading(false) 
     }
-    setNameLoading(false) 
+  }
+  const verifyPhoneOtp = async () => {
+  if (!otp) {
+    Alert.alert("Enter OTP");
+    return;
   }
 
+  setVerifyingOtp(true);
+
+  try {
+    await account.updatePhoneVerification(
+      "current",
+      otp
+    );
+
+    await refreshUser();
+    Alert.alert("Success", "Phone number verified");
+
+    setOtp("");
+    setShowOtp(false);
+  } catch (e) {
+    Alert.alert("Invalid OTP");
+    console.error(e);
+  } finally {
+    setVerifyingOtp(false);
+  }
+};
+
+
   return (
-    <KeyboardAvoidingView style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} >
       <Text variant="headlineMedium" style={{ marginBottom: 20 }}>
         My Profile
       </Text>
@@ -91,22 +153,64 @@ export default function Profile() {
       <TextInput 
         label="Name"
         placeholder="Please Update Your Name"
-        mode='outlined'
-        defaultValue={currentuser?.name}
+        mode='outlined' 
         value={name}
         onChangeText={setName}
         style={{ width: "100%", marginTop: 20 }}
       />
       <TextInput 
-        label="email"
+        label="Phone Number"
+        placeholder="Please Update Your Phone Number"
+        mode='outlined' 
+        value={phone}
+        onChangeText={setPhone}
+        style={{ width: "100%", marginTop: 20 }}
+      />
+      {showOtp && (
+          <>
+            <TextInput
+              label="OTP Code"
+              mode="outlined"
+              keyboardType="numeric"
+              value={otp}
+              onChangeText={setOtp}
+              style={{ width: "100%", marginTop: 20 }}
+            />
+
+            <Button
+              mode="contained"
+              loading={verifyingOtp}
+              onPress={verifyPhoneOtp}
+              style={{ marginTop: 10 }}
+            >
+              Verify Phone
+            </Button>
+          </>
+        )}
+
+      <TextInput 
+        label="Email"
         mode='outlined'
-        value={currentuser?.email}
+        value={email}
+        onChangeText={setEmail}
+        style={{ width: "100%", marginTop: 20 }}
+      />
+      <TextInput 
+        label="Password"
+        mode='outlined'
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        right={<TextInput.Icon icon="eye" />}
         style={{ width: "100%", marginTop: 20 }}
       />
 
       <Button
         mode="contained"
-        loading={nameLoading}
+        textColor="#fff"
+        buttonColor="green"
+        rippleColor="red"
+        loading={loading}
         style={{ marginTop: 20 }}
         onPress={handeUpdate}
       >

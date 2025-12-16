@@ -19,8 +19,8 @@ export default function AuthScreen() {
             setError("Please Enter all field");
             return;
         }
-        if (password.length < 6) {
-            setError("Please Password more than 6 word");
+        if (password.length < 1) {
+            setError("Please Password more than 1 word");
             return;
         }
 
@@ -69,7 +69,6 @@ export default function AuthScreen() {
                 onChangeText={setEmail}
                 style={style.input}
             />
-            <Text>{email}</Text>
             <TextInput
                 label='Password'
                 autoCapitalize='none'
