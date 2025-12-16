@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ID, Query } from "react-native-appwrite";
 import { Swipeable } from "react-native-gesture-handler";
-import { Button, Surface, Text } from "react-native-paper";
+import { Surface, Text } from "react-native-paper";
 
 export default function Index() {
   const { signOut, currentuser } = useAuth();
@@ -171,9 +171,9 @@ export default function Index() {
           {" "}
           Today's Habits 
         </Text>
-        <Button mode="text" onPress={signOut} icon={"logout"}>
+        {/* <Button mode="text" onPress={signOut} icon={"logout"}>
           Sign Out
-        </Button>
+        </Button> */}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>

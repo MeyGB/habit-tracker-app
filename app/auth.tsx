@@ -9,13 +9,14 @@ export default function AuthScreen() {
     const theme = useTheme()
     const [isSignUp, setIsSignUp] = useState(false)
     const [email, setEmail] = useState('')
+    const [name, setName] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>('')
     const {signIn, signUp,isLoadingAuth } = useAuth()
     const router = useRouter()
 
     const handleAuth = async () => {
-        if (!email || !password) {
+        if (!email || !password || !name) {
             setError("Please Enter all field");
             return;
         }
@@ -27,7 +28,7 @@ export default function AuthScreen() {
         setError(null);
 
         if (isSignUp) {
-            const error = await signUp(email, password);
+            const error = await signUp(name,email, password);
             if (error) {
                 setError(error);
                 return;
@@ -60,24 +61,63 @@ export default function AuthScreen() {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={style.container}>
         <View style={style.content}>
             <Text style={style.title} variant='headlineMedium'>{isSignUp ? 'Create New User' : 'Welcome Back'}</Text>
-            <TextInput
-                label='Email'
-                autoCapitalize='none'
-                keyboardType='email-address'
-                placeholder='example@gmail.com'
-                mode='outlined'
-                onChangeText={setEmail}
-                style={style.input}
-            />
-            <TextInput
-                label='Password'
-                autoCapitalize='none'
-                keyboardType='visible-password'
-                mode='outlined'
-                onChangeText={setPassword}
-                style={style.input}
+{isSignUp ? (
+  // Sign Up: show username, email, password
+  <>
+    <TextInput
+      label='Username'
+      autoCapitalize='none'
+      placeholder='username'
+      mode='outlined'
+      value={name}
+      onChangeText={setName}
+      style={style.input}
+    />
+    <TextInput
+      label='Email'
+      autoCapitalize='none'
+      keyboardType='email-address'
+      placeholder='example@gmail.com'
+      mode='outlined'
+      value={email}
+      onChangeText={setEmail}
+      style={style.input}
+    />
+    <TextInput
+      label='Password'
+      autoCapitalize='none'
+      keyboardType='visible-password'
+      mode='outlined'
+      value={password}
+      onChangeText={setPassword}
+      style={style.input}
+    />
+  </>
+) : (
+  // Sign In: show only email and password
+  <>
+    <TextInput
+      label='Email'
+      autoCapitalize='none'
+      keyboardType='email-address'
+      placeholder='example@gmail.com'
+      mode='outlined'
+      value={email}
+      onChangeText={setEmail}
+      style={style.input}
+    />
+    <TextInput
+      label='Password'
+      autoCapitalize='none'
+      keyboardType='visible-password'
+      mode='outlined'
+      value={password}
+      onChangeText={setPassword}
+      style={style.input}
+    />
+  </>
+)}
 
-            />
             {error && <Text style={{color:theme.colors.error}}>{error}</Text>}
             <Button icon="camera" mode="contained" onPress={handleAuth} style={style.button}>{isSignUp ? 'Sign Up' : 'Sign In'}</Button>
             <Button icon="camera" mode="text" onPress={handleSwitch} style={style.button}>{isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up" }</Button>

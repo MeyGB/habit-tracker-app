@@ -7,7 +7,7 @@ type AuthContextType = {
   isLoadingUser: boolean;
   isLoadingAuth: boolean;
 
-  signUp: (email: string, password: string) => Promise<string | null>;
+  signUp: (name: string, email: string, password: string) => Promise<string | null>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>; 
@@ -38,11 +38,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (name:string, email: string, password: string) => {
     setIsLoadingAuth(true);
     try {
-      await account.create(ID.unique(), email, password);
+      await account.create(ID.unique(),email, password);
       await signIn(email, password);
+      if (name.trim()) {
+        await account.updateName(name)
+        await refreshUser();
+      };
       return null;
     } catch (error) {
       return error instanceof Error ? error.message : "Signup failed";

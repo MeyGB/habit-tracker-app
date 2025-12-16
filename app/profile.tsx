@@ -1,5 +1,7 @@
 import { getAvatarText } from "@/helper/avatar";
+import { formatCambodiaPhone } from "@/helper/formatPhone";
 import { getImageUrl } from "@/helper/getImageUrl";
+import { toLocalCambodiaPhone } from "@/helper/toLocalCambodiaPhone";
 import { uploadImage } from "@/services/uploadImage";
 import { account } from "@/utils/Appwrite";
 import { useAuth } from "@/utils/auth-context";
@@ -19,13 +21,16 @@ export default function Profile() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState(currentuser?.email || "")
   const [password, setPassword] = useState("")
-  const [phone, setPhone] = useState(currentuser?.phone || "+855")
+  const [phone, setPhone] = useState(currentuser?.phone)
 
   useEffect(() => {
     // console.log(currentuser);
-    console.log(currentuser?.phone);
-    console.log(currentuser?.phoneVerification); 
-    
+    // console.log(currentuser?.phone);
+    // console.log(currentuser?.phoneVerification); 
+     
+    if (currentuser?.phone) {
+      setPhone(toLocalCambodiaPhone(currentuser.phone))
+    }
 
     if (currentuser?.prefs?.avatar) {
       setAvatarId(currentuser.prefs.avatar);
@@ -75,7 +80,10 @@ export default function Profile() {
         setLoading(false)
         return;
       }
-      await account.updatePhone(phone, password)
+
+      const formatPhone = formatCambodiaPhone(phone)
+
+      await account.updatePhone(formatPhone, password)
       await account.createPhoneVerification()
       await refreshUser();
       setShowOtp(true);
